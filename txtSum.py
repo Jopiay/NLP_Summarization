@@ -25,7 +25,7 @@ stop_words = [
 
 
 
-parag = "This is a sentence. Here's another one. And a third sentence."
+parag = ""
 
 
 
@@ -50,7 +50,7 @@ def Tokenization(paragr):
     return cleaned_sentence
 
 ##Vectorizing the sentences
-##one of the many ways is to use TF-IDF
+##one of the different ways is to use TF-IDF
 def TF(sentences = Tokenization(parag)):
     tf = []
     for sentence in sentences:
@@ -105,28 +105,43 @@ def cos_simi_matrix(tfidf):
     return similarity_matrix
 
 
+def most_similar(tfidf):
+    simi_matrix = cos_simi_matrix(tfidf)
+    row_sum = np.sum(simi_matrix, axis=1)
+    sorted_indices = np.argsort(row_sum)[::-1]  # Sort in descending order
+    sorted_sum = row_sum[sorted_indices]
+    
+    return sorted_indices, sorted_sum
 
-
-
+def organize_sentences_by_similarity(sorted_indices, original_sentences):
+    # Use the sorted indices to reorganize the sentences
+    organized_sentences = [original_sentences[i] for i in sorted_indices]
+    return organized_sentences
 
 def run():
-    
     sentences = Tokenization(parag)  # Tokenize the paragraph
     tf_result = TF(sentences)  # Calculate term frequencies
     idf_result = IDF(sentences)  # Calculate inverse document frequencies
-
-    # Print the tokenized sentences
-    print("Tokenized Sentences:", sentences)
     
-    # Print the term frequency result
+    tfidf_result = tf_idf(tf_result, idf_result)
+    
+    # Print results
+    print("Original Sentences:", sentences)
     print("TF Result:", tf_result)
-    
-    # Print the inverse document frequency result
     print("IDF Result:", idf_result)
+    print("TF-IDF Result:", tfidf_result)
     
-    # Print the final TF-IDF result
-    print("TF-IDF Result:", tf_idf(tf_result, idf_result))
+    # Calculate similarity
+    most_similar_sentences, similarity_scores = most_similar(tfidf_result)
+    print("Most Similar Sentences Indices:", most_similar_sentences)
+    print("Similarity Scores:", similarity_scores)
 
+    # Organize sentences by similarity
+    organized_sentences = organize_sentences_by_similarity(most_similar_sentences, sentences)
+    print("Sentences Organized by Similarity:", organized_sentences)
+
+if __name__ == '__main__':
+    run()
 
 
 if  __name__ == '__main__' :
