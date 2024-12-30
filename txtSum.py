@@ -25,7 +25,23 @@ stop_words = [
 
 
 
-parag = ""
+parag = """ 
+            Technology has become an integral part of modern education, revolutionizing how students learn and teachers instruct. From interactive whiteboards to online learning platforms, the tools available today have transformed traditional classrooms into dynamic environments that foster collaboration and innovation.
+
+One of the most significant benefits of technology in education is accessibility. Online courses and digital resources allow students from remote or underserved areas to access quality education. Moreover, students with disabilities can use assistive technologies to overcome learning barriers, ensuring inclusivity in the learning process.
+
+Another crucial advantage is personalized learning. Adaptive learning software tailors educational content to the needs of individual students, helping them learn at their own pace. This approach not only improves understanding but also boosts confidence and motivation.
+
+Collaboration has also been enhanced by technology. Tools like Google Workspace, Microsoft Teams, and educational apps enable students to work together on projects, regardless of their physical location. Virtual classrooms and video conferencing ensure that learning continues uninterrupted, even in challenging times like the COVID-19 pandemic.
+
+However, the integration of technology in education is not without challenges. One major issue is the digital divide—many students still lack access to devices or reliable internet connections, widening the gap between privileged and underserved communities. Cybersecurity and data privacy are additional concerns, as increased reliance on technology exposes educational institutions to potential threats.
+
+Despite these challenges, the future of education undoubtedly lies in leveraging technology. Governments, educators, and technology providers must work together to address existing barriers and ensure that the benefits of technology are accessible to all.
+
+In conclusion, technology has the potential to transform education for the better, making it more inclusive, engaging, and efficient. As we continue to innovate, it is crucial to ensure that no student is left behind in the pursuit of knowledge.
+
+
+        """
 
 
 
@@ -105,44 +121,38 @@ def cos_simi_matrix(tfidf):
     return similarity_matrix
 
 
-def most_similar(tfidf):
+def most_similar(tfidf, sentences, k):
     simi_matrix = cos_simi_matrix(tfidf)
     row_sum = np.sum(simi_matrix, axis=1)
-    sorted_indices = np.argsort(row_sum)[::-1]  # Sort in descending order
-    sorted_sum = row_sum[sorted_indices]
-    
-    return sorted_indices, sorted_sum
+    sorted_indices = np.argsort(row_sum)[::-1]  # Sort indices by descending scores
+    top_k_indices = sorted_indices[:k]  # Select top-k indices
+    summary = [sentences[i] for i in top_k_indices]  # Fetch sentences
+    return summary
 
-def organize_sentences_by_similarity(sorted_indices, original_sentences):
-    # Use the sorted indices to reorganize the sentences
-    organized_sentences = [original_sentences[i] for i in sorted_indices]
-    return organized_sentences
+
+
+def choose_k():
+    k = input("Choose the number of sentences the summary is of: ")
+    return int(k)  # Convert to integer
 
 def run():
     sentences = Tokenization(parag)  # Tokenize the paragraph
     tf_result = TF(sentences)  # Calculate term frequencies
     idf_result = IDF(sentences)  # Calculate inverse document frequencies
-    
     tfidf_result = tf_idf(tf_result, idf_result)
     
-    # Print results
-    print("Original Sentences:", sentences)
-    print("TF Result:", tf_result)
-    print("IDF Result:", idf_result)
-    print("TF-IDF Result:", tfidf_result)
+    # Number of sentences for the summary
+    k = choose_k()
     
-    # Calculate similarity
-    most_similar_sentences, similarity_scores = most_similar(tfidf_result)
-    print("Most Similar Sentences Indices:", most_similar_sentences)
-    print("Similarity Scores:", similarity_scores)
+    # Generate and print summary
+    summary = most_similar(tfidf_result, sentences, k)
+    print("\nSummary:")
+    print("\n".join(summary))
+    
 
-    # Organize sentences by similarity
-    organized_sentences = organize_sentences_by_similarity(most_similar_sentences, sentences)
-    print("Sentences Organized by Similarity:", organized_sentences)
+
 
 if __name__ == '__main__':
     run()
 
 
-if  __name__ == '__main__' :
-    run()
